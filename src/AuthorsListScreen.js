@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from "react";
 import {View, Text, StatusBar, SafeAreaView, FlatList, Alert, TouchableOpacity} from 'react-native';
 import AuthorListViewItem from "./components/AuthorListItem";
+import EndOfList from "./components/EndOfList";
+
 
 const AuthorsListScreen = props => {
 
@@ -38,12 +40,6 @@ const AuthorsListScreen = props => {
         loadData();
     }, []);
 
-    const renderLastElement = () => {
-        return <View style={{ justifyContent: "center", alignItems: "center", padding: 10 }}>
-            <Text>You have reached the last page</Text>
-        </View>
-    }
-
     return (
         <>
             <StatusBar barStyle="dark-content" />
@@ -54,7 +50,7 @@ const AuthorsListScreen = props => {
                     renderItem={({item, index}) => <AuthorListViewItem item={item} index={index} onPress={() => navigation.navigate("AuthorItemScreen", item)} />}
                     onEndReached={() => isLastPage ? null : loadData()}
                     onEndReachedThreshold={0.5}
-                    ListFooterComponent={() => isLastPage ? renderLastElement() : null}
+                    ListFooterComponent={() => isLastPage ? EndOfList() : null}
                 />
                 <TouchableOpacity style={{ justifyContent: "center", alignItems: "center", padding: 10, backgroundColor: 'pink' }} onPress={loadData}>
                     <Text>Click here to load next page or swipe down to scroll</Text>

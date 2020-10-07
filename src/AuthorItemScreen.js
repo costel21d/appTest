@@ -1,13 +1,15 @@
 import React from "react";
-import {View, Text, StatusBar, SafeAreaView, FlatList, StyleSheet} from 'react-native';
+import {View, Text, StatusBar, SafeAreaView, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import EndOfList from "./components/EndOfList";
 
 const AuthorItemScreen = props => {
 
   const author = props.route.params;
   const [books, setBooks] = React.useState([]);
   const [page, setPage] = React.useState(1);
+  const [isLastPage, setIsLastPage] = React.useState(false);
 
-  React.useEffect(() => {
+    const loadData = () => {
         const baseUrl = `https://jsonmock.hackerrank.com/api/articles`;
     fetch(`${baseUrl}?page=${page}&author=${author}`, {
             method: 'GET',
@@ -19,8 +21,19 @@ const AuthorItemScreen = props => {
         })
             .then(response => response.json())
             .then(responseData => {
-                setBooks(responseData.data);
+                console.log('0: ', responseData.data);
+                setBooks([...books, ...responseData.data]);
+
+                if (responseData.total_pages > page) {
+                    setPage(page + 1);
+                } else {
+                    setIsLastPage(true);
+                }
             });
+    }
+
+  React.useEffect(() => {
+        loadData();
     },[]);
 
     const renderBooksItem = (item) => {
@@ -39,7 +52,13 @@ const AuthorItemScreen = props => {
                 data={books}
                 keyExtractor={() => new Date().getTime().toString() + (Math.floor(Math.random() * Math.floor(new Date().getTime()))).toString()}
                 renderItem={({ item }) => renderBooksItem(item)}
+                onEndReached={() => isLastPage ? null : loadData()}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={() => isLastPage ? EndOfList() : null}
             />
+            <TouchableOpacity style={{ justifyContent: "center", alignItems: "center", padding: 10, backgroundColor: 'pink' }} onPress={loadData}>
+                <Text>Click here to load next page or swipe down to scroll</Text>
+            </TouchableOpacity>
         </SafeAreaView>
             </>
     );
